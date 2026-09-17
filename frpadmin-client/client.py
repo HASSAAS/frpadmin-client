@@ -63,9 +63,9 @@ def build_config(options):
             if not domains and not proxy.get('subdomain'):
                 raise ValueError('HTTP/HTTPS 代理需要域名或子域名')
             if kind == 'http' and backend == 'https':
-                # 后端只接受 HTTPS：由 https2http 插件把 frps 转发的明文请求转成 HTTPS
+                # 后端只接受 HTTPS：由 http2https 插件把 frps 转发的明文请求转成 HTTPS
                 proxy['plugin'] = {
-                    'type': 'https2http',
+                    'type': 'http2https',
                     'localAddr': f'{local_ip}:{local_port}',
                     'hostHeaderRewrite': local_ip,
                 }

@@ -40,7 +40,7 @@ proxies:
 `serverToken` 是 FRPS 原生连接凭据，写入 `auth.token`。两者用途不同，不能互换。
 若服务端明确配置空连接 Token，此处也填写空字符串；不要为了连接成功擅自清空服务端凭据。
 `backendScheme: https` 用于后端只提供 HTTPS 的场景：frps 的 http 类型会把明文请求转发给 frpc，
-frpc 再用 `https2http` 插件以 HTTPS 请求本地目标，此时不再下发 localIP/localPort。
+frpc 再用 `http2https` 插件以 HTTPS 请求本地目标，此时不再下发 localIP/localPort。
 不加该字段时按明文 HTTP 转发；若后端只接受 HTTPS，会表现为 frps 返回 404 且出向流量为 0。
 `type: https` 是 TLS 直通（SNI 路由），不需要也不接受该插件。
 域名支持逗号分隔；HTTP/HTTPS 不填写 remotePort，TCP/UDP 必须填写。
