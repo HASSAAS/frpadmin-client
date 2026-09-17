@@ -35,9 +35,24 @@ def build_config(options):
             raise ValueError('不支持的代理类型')
         if not source.get('localIP'):
             raise ValueError('localIP 必须填写')
-        proxy = {k: source[k] for k in ('name', 'type', 'localIP')}
-        proxy['localPort'] = port(source.get('localPort'))
+        backend = str(source.get('backendScheme', 'http') or 'http').lower()
+        local_ip = str(source['localIP']).strip()
+        if '://' in local_ip:  # 允许写成 https://192.168.1.10，自动拆成主机 + 后端协议
+            scheme, local_ip = local_ip.split('://', 1)
+            local_ip = local_ip.split('/')[0].strip()
+            if scheme.lower() == 'https':
+                backend = 'https'
+        if backend not in ('http', 'https'):
+            raise ValueError('backendScheme 只能是 http 或 https')
+        if kind in ('tcp', 'udp') and backend == 'https':
+            raise ValueError('tcp/udp 不支持后端 HTTPS，请改用 http 类型')
+        if kind == 'https':
+            backend = 'https'
+        local_port = port(source.get('localPort'))
+        proxy = {'name': source['name'], 'type': kind}
         if kind in ('tcp', 'udp'):
+            proxy['localIP'] = local_ip
+            proxy['localPort'] = local_port
             proxy['remotePort'] = port(source.get('remotePort'))
         else:
             domains = [x.strip() for x in source.get('customDomains', '').split(',') if x.strip()]
@@ -47,6 +62,16 @@ def build_config(options):
                 proxy['subdomain'] = source['subdomain']
             if not domains and not proxy.get('subdomain'):
                 raise ValueError('HTTP/HTTPS 代理需要域名或子域名')
+            if kind == 'http' and backend == 'https':
+                # 后端只接受 HTTPS：由 https2http 插件把 frps 转发的明文请求转成 HTTPS
+                proxy['plugin'] = {
+                    'type': 'https2http',
+                    'localAddr': f'{local_ip}:{local_port}',
+                    'hostHeaderRewrite': local_ip,
+                }
+            else:
+                proxy['localIP'] = local_ip
+                proxy['localPort'] = local_port
         config['proxies'].append(proxy)
     return config
 

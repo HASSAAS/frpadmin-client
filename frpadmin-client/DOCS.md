@@ -27,11 +27,22 @@ proxies:
     localIP: 192.168.123.9
     localPort: 80
     customDomains: ha9.f.17paixie.com
+  # 内网目标只接受 HTTPS 时（如 https://192.168.123.9:80），加一行 backendScheme：
+  - name: HomeAssistant9_http_tls
+    type: http
+    localIP: 192.168.123.9
+    localPort: 80
+    backendScheme: https
+    customDomains: ha99.f.17paixie.com
 ```
 
 `authToken` 是个人凭据，通过 TLS 连接中的 `metadatas.frpadmin_token` 传递。
 `serverToken` 是 FRPS 原生连接凭据，写入 `auth.token`。两者用途不同，不能互换。
 若服务端明确配置空连接 Token，此处也填写空字符串；不要为了连接成功擅自清空服务端凭据。
+`backendScheme: https` 用于后端只提供 HTTPS 的场景：frps 的 http 类型会把明文请求转发给 frpc，
+frpc 再用 `https2http` 插件以 HTTPS 请求本地目标，此时不再下发 localIP/localPort。
+不加该字段时按明文 HTTP 转发；若后端只接受 HTTPS，会表现为 frps 返回 404 且出向流量为 0。
+`type: https` 是 TLS 直通（SNI 路由），不需要也不接受该插件。
 域名支持逗号分隔；HTTP/HTTPS 不填写 remotePort，TCP/UDP 必须填写。
 用户名、个人 Token 与面板一致；面板登记代理名填 `HomeAssistant9_http`，不要手动加用户名。
 FRPC 实际注册名称自动变成 `scliao.HomeAssistant9_http`。
@@ -40,7 +51,7 @@ FRPC 实际注册名称自动变成 `scliao.HomeAssistant9_http`。
 ## 必须同步更新 FRPAdmin 服务端
 
 旧版接口不能识别官方插件请求，不能只安装客户端。
-本次配套修改 main.py、plugin_auth.py、configgen.py、Dockerfile 后，在飞牛执行：
+本次配套修改 main.py、store.py、configgen.py、static/app.js、Dockerfile 后，在飞牛执行：
 
 ```sh
 cd /vol1/1000/Docker/frp-admin

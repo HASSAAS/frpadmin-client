@@ -1,5 +1,5 @@
 name: FRPAdmin Client
-version: "1.0.0"
+version: "1.1.0"
 slug: frpadmin_client
 url: https://github.com/HASSAAS/frpadmin-client
 description: FRPAdmin 专属客户端，支持用户名、独立 Token 和代理规则
@@ -28,6 +28,7 @@ schema:
       type: list(tcp|udp|http|https)
       localIP: str
       localPort: port
+      backendScheme: list(http|https)?
       remotePort: port?
       customDomains: str?
       subdomain: str?
