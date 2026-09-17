@@ -1,0 +1,33 @@
+name: FRPAdmin Client
+version: "1.0.0"
+slug: frpadmin_client
+url: https://github.com/HASSAAS/frpadmin-client
+description: FRPAdmin 专属客户端，支持用户名、独立 Token 和代理规则
+arch: [amd64, aarch64]
+startup: application
+boot: auto
+init: false
+host_network: true
+options:
+  serverAddr: fnos.f.17paixie.com
+  serverPort: 7000
+  user: scliao
+  authToken: ""
+  serverToken: ""
+  debug: false
+  proxies: []
+schema:
+  serverAddr: str
+  serverPort: port
+  user: str
+  authToken: password
+  serverToken: password
+  debug: bool
+  proxies:
+    - name: str
+      type: list(tcp|udp|http|https)
+      localIP: str
+      localPort: port
+      remotePort: port?
+      customDomains: str?
+      subdomain: str?
