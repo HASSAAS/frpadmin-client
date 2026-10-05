@@ -1,7 +1,7 @@
 """Translate Supervisor options into native frpc JSON, without logging secrets."""
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import subprocess
 import sys
 
@@ -54,7 +54,7 @@ def build_config(options):
             raise ValueError('sslCertificate 和 sslKey 必须同时填写')
         if certificate and kind != 'https':
             raise ValueError('证书仅适用于 https 代理')
-        if certificate and not all(Path(path).is_absolute() for path in (certificate, key)):
+        if certificate and not all(PurePosixPath(path).is_absolute() for path in (certificate, key)):
             raise ValueError('证书和私钥必须使用绝对路径')
         local_port = port(source.get('localPort'))
         proxy = {'name': source['name'], 'type': kind}
