@@ -48,6 +48,14 @@ def build_config(options):
             raise ValueError('tcp/udp 不支持后端 HTTPS，请改用 http 类型')
         if kind == 'https':
             backend = 'https'
+        certificate = str(source.get('sslCertificate', '') or '').strip()
+        key = str(source.get('sslKey', '') or '').strip()
+        if bool(certificate) != bool(key):
+            raise ValueError('sslCertificate 和 sslKey 必须同时填写')
+        if certificate and kind != 'https':
+            raise ValueError('证书仅适用于 https 代理')
+        if certificate and not all(Path(path).is_absolute() for path in (certificate, key)):
+            raise ValueError('证书和私钥必须使用绝对路径')
         local_port = port(source.get('localPort'))
         proxy = {'name': source['name'], 'type': kind}
         if kind in ('tcp', 'udp'):
@@ -62,7 +70,14 @@ def build_config(options):
                 proxy['subdomain'] = source['subdomain']
             if not domains and not proxy.get('subdomain'):
                 raise ValueError('HTTP/HTTPS 代理需要域名或子域名')
-            if kind == 'http' and backend == 'https':
+            if kind == 'https' and certificate:
+                proxy['plugin'] = {
+                    'type': 'https2https',
+                    'localAddr': f'{local_ip}:{local_port}',
+                    'crtPath': certificate,
+                    'keyPath': key,
+                }
+            elif kind == 'http' and backend == 'https':
                 # 后端只接受 HTTPS：由 http2https 插件把 frps 转发的明文请求转成 HTTPS
                 proxy['plugin'] = {
                     'type': 'http2https',

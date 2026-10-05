@@ -42,7 +42,25 @@ proxies:
 `backendScheme: https` 用于后端只提供 HTTPS 的场景：frps 的 http 类型会把明文请求转发给 frpc，
 frpc 再用 `http2https` 插件以 HTTPS 请求本地目标，此时不再下发 localIP/localPort。
 不加该字段时按明文 HTTP 转发；若后端只接受 HTTPS，会表现为 frps 返回 404 且出向流量为 0。
-`type: https` 是 TLS 直通（SNI 路由），不需要也不接受该插件。
+`type: https` 不填写证书时保持 TLS 直通（SNI 路由）。
+同时填写 `sslCertificate` 和 `sslKey` 时，使用 `https2https` 插件终止外网 TLS，
+再通过 HTTPS 连接内网目标，适用于内网自签证书与外网域名证书分开使用。
+两个字段必须同时填写绝对路径，且仅适用于 https 类型。
+加载项只读挂载 `/ssl`；将证书和私钥放入 Home Assistant 的 ssl 共享，勿提交到仓库。
+
+```yaml
+proxies:
+  - name: homeassistant_https
+    type: https
+    localIP: 192.168.1.10
+    localPort: 443
+    customDomains: ha.example.com
+    sslCertificate: /ssl/fullchain.pem
+    sslKey: /ssl/privkey.pem
+```
+
+访问端口由 FRPS 的 `vhostHTTPSPort` 决定；证书须匹配外网域名。
+更新加载项后保存配置并重启，确认日志出现 `start proxy success`。
 域名支持逗号分隔；HTTP/HTTPS 不填写 remotePort，TCP/UDP 必须填写。
 用户名、个人 Token 与面板一致；面板登记代理名填 `HomeAssistant9_http`，不要手动加用户名。
 FRPC 实际注册名称自动变成 `scliao.HomeAssistant9_http`。

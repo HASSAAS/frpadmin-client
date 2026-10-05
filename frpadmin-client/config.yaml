@@ -1,5 +1,5 @@
 name: FRPAdmin Client
-version: "2026091702"
+version: "2026100501"
 slug: frpadmin_client
 url: https://github.com/HASSAAS/frpadmin-client
 description: FRPAdmin 专属客户端，支持用户名、独立 Token 和代理规则
@@ -8,6 +8,7 @@ startup: application
 boot: auto
 init: false
 host_network: true
+map: [ssl:ro]
 options:
   serverAddr: fnos.f.17paixie.com
   serverPort: 7000
@@ -32,3 +33,5 @@ schema:
       remotePort: port?
       customDomains: str?
       subdomain: str?
+      sslCertificate: str?
+      sslKey: str?
