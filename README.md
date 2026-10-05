@@ -68,7 +68,7 @@ proxies:
 | `localPort` | 内网服务监听端口 | 如 HA 已配置 HTTPS 443，就填 443；不是外网入口端口 |
 | `customDomains` | 外网域名 | HTTP/HTTPS 使用；多个域名用英文逗号分隔，不带协议、端口和路径 |
 | `subdomain` | 子域名名称 | 可替代自定义域名，但须服务端已配置 `subdomainHost` |
-| `backendScheme` | `http` 或 `https` | HTTP 规则连接 HTTPS 后端时设为 `https`；HTTPS 类型无需填写 |
+| `backendScheme` | `http` 或 `https` | HTTP 规则连接 HTTPS 后端时设为 `https`；HTTPS 独立证书模式也支持此字段：设为 `http` 时使用 https2http；省略则连接 HTTPS 后端 |
 | `sslCertificate` | `/ssl/fullchain.pem` 等绝对路径 | 仅 HTTPS 类型支持；与 `sslKey` 同时填写才启用独立外网证书 |
 | `sslKey` | `/ssl/privkey.pem` 等绝对路径 | 与证书匹配的私钥；不能填写 Windows 文件路径 |
 | `remotePort` | FRPS 上的 TCP/UDP 入口端口 | TCP/UDP 必填；HTTP/HTTPS 不填 |

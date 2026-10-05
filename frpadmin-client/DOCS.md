@@ -112,3 +112,20 @@ ops = ["Login", "NewProxy"]
 - https://developers.home-assistant.io/docs/apps/configuration/
 
 本加载项脚本为独立实现，未复制原项目脚本；FRP 二进制遵循随镜像附带的 Apache-2.0 许可证。
+
+## HTTPS 入口连接飞牛 HTTP 后端
+
+版本 2026100502 起，独立证书规则可设置 `backendScheme: http`，使用 `https2http`。
+不填 backendScheme 时，HTTPS 规则默认连接 HTTPS 后端。
+
+```yaml
+proxies:
+  - name: fnos_https
+    type: https
+    localIP: 192.168.1.20
+    localPort: 5666
+    backendScheme: http
+    customDomains: nas.example.com
+    sslCertificate: /ssl/fullchain.pem
+    sslKey: /ssl/privkey.pem
+```
