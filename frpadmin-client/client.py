@@ -35,7 +35,7 @@ def build_config(options):
             raise ValueError('不支持的代理类型')
         if not source.get('localIP'):
             raise ValueError('localIP 必须填写')
-        backend = str(source.get('backendScheme', 'http') or 'http').lower()
+        backend = str(source.get('backendScheme', 'https' if source.get('type') == 'https' else 'http') or 'http').lower()
         local_ip = str(source['localIP']).strip()
         if '://' in local_ip:  # 允许写成 https://192.168.1.10，自动拆成主机 + 后端协议
             scheme, local_ip = local_ip.split('://', 1)
@@ -46,7 +46,7 @@ def build_config(options):
             raise ValueError('backendScheme 只能是 http 或 https')
         if kind in ('tcp', 'udp') and backend == 'https':
             raise ValueError('tcp/udp 不支持后端 HTTPS，请改用 http 类型')
-        if kind == 'https':
+        if kind == 'https' and not source.get('sslCertificate'):
             backend = 'https'
         certificate = str(source.get('sslCertificate', '') or '').strip()
         key = str(source.get('sslKey', '') or '').strip()
@@ -72,7 +72,7 @@ def build_config(options):
                 raise ValueError('HTTP/HTTPS 代理需要域名或子域名')
             if kind == 'https' and certificate:
                 proxy['plugin'] = {
-                    'type': 'https2https',
+                    'type': 'https2https' if backend == 'https' else 'https2http',
                     'localAddr': f'{local_ip}:{local_port}',
                     'crtPath': certificate,
                     'keyPath': key,
